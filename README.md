@@ -49,6 +49,8 @@ You can display a post gist geography(MultiLineString,4326) area on the map and 
                 'center' => ["43", "10"],
                 'attribution' => '<a href="https://webmapp.it/">Webmapp</a> contributors',
                 'tiles' => 'https://api.webmapp.it/tiles/{z}/{x}/{y}.png',
+                'minZoom' => 5,
+                'maxZoom' => 17,
                 'defaultZoom' => 10
             ]),
         ];

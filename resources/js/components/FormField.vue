@@ -9,7 +9,7 @@
           {{  firstError  }}
         </p>
       </div>
-      <wm-map-multi-linestring :field="field" :attribution="attribution" :geojson="geojson">
+      <wm-map-multi-linestring :field="field" :attribution="attribution" :geojson="geojson" :viewPage="'form'">
       </wm-map-multi-linestring>
     </template>
   </default-field>

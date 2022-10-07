@@ -1,7 +1,7 @@
 <template>
   <PanelItem :index="index" :field="field">
     <template #value>
-      <wm-map-multi-linestring :field="field"></wm-map-multi-linestring>
+      <wm-map-multi-linestring :field="field" :viewPage="'detail'"></wm-map-multi-linestring>
     </template>
   </PanelItem>
 </template>

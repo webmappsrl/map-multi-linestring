@@ -12,7 +12,7 @@ import L from "leaflet";
 const DEFAULT_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [0, 0];
-const DEFAULT_MINZOOM = 8;
+const DEFAULT_MINZOOM = 7;
 const DEFAULT_MAXZOOM = 17;
 const DEFAULT_DEFAULTZOOM = 8;
 const linestringOption = {
@@ -24,7 +24,7 @@ let linestring = null;
 export default {
     name: "MapMultiLineString",
     mixins: [FormField, HandlesValidationErrors],
-    props: ['field', 'geojson'],
+    props: ['field', 'geojson', 'viewPage'],
     data() {
         return {
             mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}`,
@@ -56,10 +56,13 @@ export default {
                     mapDiv.fitBounds(linestring.getBounds());
                 }
 
-                mapDiv.dragging.disable();
-                mapDiv.zoomControl.remove()
-                mapDiv.scrollWheelZoom.disable();
-                mapDiv.doubleClickZoom.disable();
+                if (this.viewPage !== 'detail') {
+                    mapDiv.dragging.disable();
+                    mapDiv.zoomControl.remove()
+                    mapDiv.scrollWheelZoom.disable();
+                    mapDiv.doubleClickZoom.disable();
+                } else {
+                }
             }, 300);
         }
     },
