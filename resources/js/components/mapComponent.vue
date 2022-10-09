@@ -9,6 +9,8 @@
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import "leaflet.fullscreen/Control.FullScreen.js";
+import "leaflet.fullscreen/Control.FullScreen.css";
 const DEFAULT_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [0, 0];
@@ -62,6 +64,12 @@ export default {
                     mapDiv.scrollWheelZoom.disable();
                     mapDiv.doubleClickZoom.disable();
                 } else {
+                    L.control.fullscreen({
+                        position: 'topright', 
+                        title: 'Show fullscreen!',
+                        titleCancel: 'Exit fullscreen',
+                        forceSeparateButton: true,
+                    }).addTo(mapDiv);
                 }
             }, 300);
         }
