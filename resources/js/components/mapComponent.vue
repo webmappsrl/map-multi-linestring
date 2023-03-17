@@ -36,6 +36,7 @@ export default {
     methods: {
         initMap() {
             setTimeout(() => {
+                console.log('testmodifiche');
                 const center = this.field.center ?? this.center ?? DEFAULT_CENTER;
                 const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
                 const linestringGeojson = this.field.geojson;
@@ -58,19 +59,31 @@ export default {
                     mapDiv.fitBounds(linestring.getBounds());
                 }
 
-                if (this.viewPage !== 'detail') {
-                    mapDiv.dragging.disable();
-                    mapDiv.zoomControl.remove()
-                    mapDiv.scrollWheelZoom.disable();
-                    mapDiv.doubleClickZoom.disable();
-                } else {
-                    L.control.fullscreen({
-                        position: 'topright', 
-                        title: 'Show fullscreen!',
-                        titleCancel: 'Exit fullscreen',
-                        forceSeparateButton: true,
-                    }).addTo(mapDiv);
-                }
+                // if (this.viewPage !== 'detail') {
+                //     mapDiv.dragging.disable();
+                //     mapDiv.zoomControl.remove()
+                //     mapDiv.scrollWheelZoom.disable();
+                //     mapDiv.doubleClickZoom.disable();
+                // } else {
+                //     L.control.fullscreen({
+                //         position: 'topleft',
+                //         title: 'Show fullscreen!',
+                //         titleCancel: 'Exit fullscreen',
+                //         forceSeparateButton: true,
+                //     }).addTo(mapDiv);
+                // }
+
+                // if (this.viewPage === 'detail' || this.viewPage === 'edit') {
+                // }
+                mapDiv.dragging.enable();
+                mapDiv.zoomControl.addTo(mapDiv);
+                mapDiv.scrollWheelZoom.enable();
+                mapDiv.doubleClickZoom.enable();
+                L.control.fullscreen({
+                    position: 'topleft',
+                    title: 'Show fullscreen!',
+                    titleCancel: 'Exit fullscreen',
+                }).addTo(mapDiv);
             }, 300);
         }
     },
