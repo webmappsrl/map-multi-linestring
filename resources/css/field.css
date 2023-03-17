@@ -9,3 +9,10 @@
 }
 .leaflet-pane{z-index:50!important}
 .leaflet-bottom,.leaflet-top{z-index:51!important}
+.version-image {
+    display: unset!important;
+    height: inherit;
+}
+.leaflet-control-attribution {
+    padding-right: 0!important;
+}

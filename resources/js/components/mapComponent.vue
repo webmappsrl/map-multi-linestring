@@ -12,6 +12,8 @@ import L from "leaflet";
 import "leaflet.fullscreen/Control.FullScreen.js";
 import "leaflet.fullscreen/Control.FullScreen.css";
 const DEFAULT_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const VERSION = "0.0.5"
+const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--multi--linestring-${VERSION}-blue">`;
 const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_MINZOOM = 7;
@@ -45,7 +47,7 @@ export default {
                 L.tileLayer(
                     this.field.tiles ?? DEFAULT_TILES,
                     {
-                        attribution: this.field.attribution ?? DEFAULT_ATTRIBUTION,
+                        attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
                         maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
                         minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
                         id: "mapbox/streets-v11",
