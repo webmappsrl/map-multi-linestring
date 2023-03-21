@@ -1,5 +1,13 @@
-
 <template>
+    <div class="flex-container">
+        <div class="flex-geometry" v-if="edit">
+            <input ref="file" :id="field.name" type="file" :class="errorClasses" :placeholder="field.name"
+                @change="updateLinestring($event)" accept=".geojson,.gpx,.kml" />
+            <p v-if="hasError" class="my-2 text-danger">
+                {{ firstError }}
+            </p>
+        </div>
+    </div>
     <div id="container">
         <div :id="mapRef" class="wm-map"></div>
     </div>
@@ -11,97 +19,147 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.fullscreen/Control.FullScreen.js";
 import "leaflet.fullscreen/Control.FullScreen.css";
-const DEFAULT_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+const DEFAULT_TILES = 'https://{s}.tile.openstreetthis.map.org/{z}/{x}/{y}.png';
 const VERSION = "0.0.5"
 const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--multi--linestring-${VERSION}-blue">`;
-const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
+const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetthis.map.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_MINZOOM = 7;
 const DEFAULT_MAXZOOM = 17;
 const DEFAULT_DEFAULTZOOM = 8;
-const linestringOption = {
+const LINESTRING_OPTIONS = {
     fillColor: '#f03',
     fillOpacity: 0.5,
 };
-let mapDiv = null;
-let linestring = null;
+
 export default {
     name: "MapMultiLineString",
     mixins: [FormField, HandlesValidationErrors],
-    props: ['field', 'geojson', 'viewPage'],
+    props: ["field", "edit"],
     data() {
         return {
             mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}`,
             uploadFileContainer: 'uploadFileContainer',
+            deleteIcon: null,
+            map: null,
+            linestring: null,
+            geojson: null
         }
     },
     methods: {
         initMap() {
             setTimeout(() => {
                 console.log('testmodifiche');
-                const center = this.field.center ?? this.center ?? DEFAULT_CENTER;
-                const defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
-                const linestringGeojson = this.field.geojson;
-                mapDiv = L.map(this.mapRef).setView(center, defaultZoom);
-
-                L.tileLayer(
-                    this.field.tiles ?? DEFAULT_TILES,
-                    {
-                        attribution: `${this.field.attribution ?? DEFAULT_ATTRIBUTION}, ${VERSION_IMAGE}`,
-                        maxZoom: this.field.maxZoom ?? DEFAULT_MAXZOOM,
-                        minZoom: this.field.minZoom ?? DEFAULT_MINZOOM,
-                        id: "mapbox/streets-v11",
-                    }
-                ).addTo(mapDiv);
-
-                if (linestringGeojson != null) {
-                    linestring = L.geoJson(JSON.parse(linestringGeojson), {
-                        style: linestringOption
-                    }).addTo(mapDiv);
-                    mapDiv.fitBounds(linestring.getBounds());
-                }
-
-                // if (this.viewPage !== 'detail') {
-                //     mapDiv.dragging.disable();
-                //     mapDiv.zoomControl.remove()
-                //     mapDiv.scrollWheelZoom.disable();
-                //     mapDiv.doubleClickZoom.disable();
-                // } else {
-                //     L.control.fullscreen({
-                //         position: 'topleft',
-                //         title: 'Show fullscreen!',
-                //         titleCancel: 'Exit fullscreen',
-                //         forceSeparateButton: true,
-                //     }).addTo(mapDiv);
-                // }
-
-                // if (this.viewPage === 'detail' || this.viewPage === 'edit') {
-                // }
-                mapDiv.dragging.enable();
-                mapDiv.zoomControl.addTo(mapDiv);
-                mapDiv.scrollWheelZoom.enable();
-                mapDiv.doubleClickZoom.enable();
-                L.control.fullscreen({
-                    position: 'topleft',
-                    title: 'Show fullscreen!',
-                    titleCancel: 'Exit fullscreen',
-                }).addTo(mapDiv);
+                this.center = this.field.center ?? DEFAULT_CENTER;
+                this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
+                this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
+                this.defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
+                this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
+                this.buildMap();
+                this.buildDeleteGeometry();
             }, 300);
-        }
-    },
-    watch: {
-        geojson: (gjson) => {
-            if (linestring != null) {
-                mapDiv.removeLayer(linestring);
+        },
+        buildMap() {
+            var currentGeojson = this.field.geojson != null ? JSON.parse(this.field.geojson) : null;
+            this.updateGeojson(currentGeojson)
+            this.map = L.map(this.mapRef, {
+                fullscreenControl: true,
+                fullscreenControlOptions: {
+                    position: "topleft"
+                }
+            }).setView(this.center, this.defaultZoom);
+            L.tileLayer(this.field.tiles ?? DEFAULT_TILES, {
+                attribution: `${this.attribution}, ${VERSION_IMAGE}`,
+                maxZoom: this.maxZoom,
+                minZoom: this.minZoom,
+                id: "mapbox/streets-v11"
+            }).addTo(this.map);
+            this.buildLinestring(this.geojson);
+        },
+        buildLinestring(geojson) {
+            if (geojson != null) {
+                this.linestring = L.geoJson(geojson, {
+                    style: LINESTRING_OPTIONS
+                }).addTo(this.map);
+                this.map.fitBounds(this.linestring.getBounds());
             }
-            if (gjson != null) {
-                linestring = L.geoJSON(gjson, linestringOption).addTo(mapDiv);
-                mapDiv.fitBounds(linestring.getBounds());
+            try {
+                if (this.edit && geojson != null) {
+                    this.deleteIcon.style.visibility = "visible";
+                } else {
+                    this.deleteIcon.style.visibility = "hidden";
+                }
+            } catch (_) { }
+        },
+        buildDeleteGeometry() {
+            if (!this.edit) {
+                return;
             }
+            L.Control.deleteGeometry = L.Control.extend({
+                onAdd: () => {
+                    this.deleteIcon = L.DomUtil.create('div')
+                    L.DomUtil.addClass(this.deleteIcon, 'delete-button');
+                    var img = L.DomUtil.create('img');
+                    img.src = 'https://cdn-icons-png.flaticon.com/512/2891/2891491.png';
+                    this.deleteIcon.appendChild(img);
+                    L.DomEvent.on(this.deleteIcon, "click", (e) => {
+                        L.DomEvent.stopPropagation(e);
+                        this.updateLinestring(null);
+                        this.deleteIcon.style.visibility = "hidden";
+                    });
+                    if (this.edit && this.geojson != null) {
+                        this.deleteIcon.style.visibility = "visible";
+                    } else {
+                        this.deleteIcon.style.visibility = "hidden";
+                    }
+                    return this.deleteIcon;
+                }
+            });
+            L.control.deleteGeometry = function (opts) {
+                return new L.Control.deleteGeometry(opts);
+            }
+            L.control.deleteGeometry({ position: 'topright' }).addTo(this.map);
+            if (this.linestring != null && this.edit) {
+                this.deleteIcon.style.visibility = "visible";
+            }
+        },
+        updateLinestring(event) {
+            if (this.linestring !== null) {
+                this.map.removeLayer(this.linestring);
+                this.linestring = null;
+            }
+            if (event) {
+                const reader = new FileReader();
+                let fileName = event.target.files[0].name || '';
+                reader.onload = (event) => {
+                    let res = event.target.result;
+                    if (fileName.indexOf('gpx') > -1) {
+                        const parser = new DOMParser().parseFromString(res, 'text/xml');
+                        res = t.gpx(parser);
+                    } else if (fileName.indexOf('kml') > -1) {
+                        const parser = new DOMParser().parseFromString(res, 'text/xml');
+                        res = t.kml(parser);
+                    } else {
+                        res = JSON.parse(res);
+                    }
+                    this.updateGeojson(res)
+                    this.buildLinestring(this.geojson.features[0].geometry)
+                };
+                reader.readAsText(event.target.files[0]);
+            } else {
+                this.updateGeojson(null)
+                this.$refs.file.value = null;
+
+            }
+        },
+        updateGeojson(geojson) {
+            this.geojson = geojson;
+            this.$emit("geojson", geojson);
         }
     },
     mounted() {
         this.initMap();
-    },
+    }
 };
 </script>
