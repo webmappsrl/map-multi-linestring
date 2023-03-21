@@ -7,6 +7,7 @@
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Develop](#develop)
 - [Usage](#usage)
   - [Map Multi Linestring](#map-multi-linestring)
 - [Configuration](#configuration)
@@ -22,6 +23,34 @@ You can install the package in to a Laravel app that uses [Nova](https://nova.la
 
 ```bash
 composer require wm/map-multi-linestring
+```
+## Develop
+create a```nova-components``` folder in the root of the project where you want to develop.
+Clone map-point inside.
+add  in ``` "repositories"``` array  attribute of ```composer.json```  
+```php 
+        {
+            "type": "path",
+            "url": "./nova-components/map-multi-linestring"
+        }
+
+```
+
+modify  in ``` "requires"``` object  attribute of ```composer.json```  
+```php 
+    "wm/map-multi-linestring": "*",
+
+```
+in the first time
+
+launch
+```bash
+    cd vendor/laravel/nova && npm install
+```
+we need modify composer.lock 
+launch
+```bash
+    composer update wm/map-point
 ```
 
 ## Usage
