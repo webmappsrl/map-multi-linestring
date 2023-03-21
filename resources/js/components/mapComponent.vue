@@ -143,7 +143,13 @@ export default {
                         res = JSON.parse(res);
                     }
                     this.updateGeojson(res)
-                    this.buildLinestring(this.geojson.features[0].geometry)
+                    try {
+                        this.buildLinestring(this.geojson.features[0].geometry);
+                    } catch(_) {
+                        this.$refs.file.value = null;
+                        this.deleteIcon.style.visibility = "hidden";
+                        window.alert('The file is corrupted');
+                    }
                 };
                 reader.readAsText(event.target.files[0]);
             } else {
