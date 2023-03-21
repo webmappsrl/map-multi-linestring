@@ -1,8 +1,8 @@
 <template>
   <default-field :field="field">
     <template #field>
-      <wm-map :field="field" :attribution="attribution" @geojson="updateForm" :edit=true>
-      </wm-map>
+      <wm-map-multi-linestring  :field="field" :attribution="attribution" @geojson="updateForm" :edit=true>
+      </wm-map-multi-linestring>
     </template>
   </default-field>
 </template>
