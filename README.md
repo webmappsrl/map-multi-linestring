@@ -43,7 +43,7 @@ modify  in ``` "requires"``` object  attribute of ```composer.json```
 ```
 in the first time
 
-launch
+launch inside the repository hosting the field
 ```bash
     cd vendor/laravel/nova && npm install
 ```
@@ -51,6 +51,11 @@ we need modify composer.lock
 launch
 ```bash
     composer update wm/map-multi-linestring
+```
+
+launch inside field
+```bash
+    npm install
 ```
 
 ## Usage
