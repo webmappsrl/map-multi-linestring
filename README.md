@@ -7,6 +7,7 @@
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Develop](#develop)
 - [Usage](#usage)
   - [Map Multi Linestring](#map-multi-linestring)
 - [Configuration](#configuration)
@@ -22,6 +23,39 @@ You can install the package in to a Laravel app that uses [Nova](https://nova.la
 
 ```bash
 composer require wm/map-multi-linestring
+```
+## Develop
+create a```nova-components``` folder in the root of the project where you want to develop.
+Clone map-multi-linestring inside.
+add  in ``` "repositories"``` array  attribute of ```composer.json```  
+```php 
+        {
+            "type": "path",
+            "url": "./nova-components/map-multi-linestring"
+        }
+
+```
+
+modify  in ``` "requires"``` object  attribute of ```composer.json```  
+```php 
+    "wm/map-multi-linestring": "*",
+
+```
+in the first time
+
+launch inside the repository hosting the field
+```bash
+    cd vendor/laravel/nova && npm install
+```
+we need modify composer.lock 
+launch
+```bash
+    composer update wm/map-multi-linestring
+```
+
+launch inside field
+```bash
+    npm install
 ```
 
 ## Usage
@@ -46,7 +80,7 @@ You can display a post gist geography(MultiLineString,4326) area on the map and 
             ID::make()->sortable(),
                 ...
             MapMultiLinestring::make('geometry')->withMeta([
-                'center' => ["43", "10"],
+                'center' => [42, 10],
                 'attribution' => '<a href="https://webmapp.it/">Webmapp</a> contributors',
                 'tiles' => 'https://api.webmapp.it/tiles/{z}/{x}/{y}.png',
                 'minZoom' => 5,

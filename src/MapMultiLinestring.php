@@ -2,8 +2,8 @@
 
 namespace Wm\MapMultiLinestring;
 
-use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Fields\Field;
+use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class MapMultiLinestring extends Field
@@ -66,7 +66,11 @@ class MapMultiLinestring extends Field
 
     public function geojsonToGeometry($geojson)
     {
-        $query = "SELECT ST_AsText(ST_Force2D(ST_GeomFromGeoJSON('$geojson'))) As wkt";
-        return DB::select($query)[0]->wkt;
+        if (!is_null($geojson) && $geojson != "null") {
+            $query = "SELECT ST_AsText(ST_LineMerge(ST_Force2D(ST_GeomFromGeoJSON('$geojson')))) As wkt";
+            return DB::select($query)[0]->wkt;
+        } else {
+            return null;
+        }
     }
 }

@@ -1,5 +1,5 @@
 <template>
-  <wm-map-multi-linestring class="index-view" :field="field" :viewPage="'index'"></wm-map-multi-linestring>
+  <wm-map :edit=false class="index-view" :field="field"></wm-map>
 </template>
 <script>
 export default {
