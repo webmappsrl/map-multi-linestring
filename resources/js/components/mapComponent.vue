@@ -50,7 +50,6 @@ export default {
     methods: {
         initMap() {
             setTimeout(() => {
-                console.log('testmodifiche');
                 this.center = this.field.center ?? DEFAULT_CENTER;
                 this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
                 this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;

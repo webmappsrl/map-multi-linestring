@@ -26,7 +26,7 @@ composer require wm/map-multi-linestring
 ```
 ## Develop
 create a```nova-components``` folder in the root of the project where you want to develop.
-Clone map-point inside.
+Clone map-multi-linestring inside.
 add  in ``` "repositories"``` array  attribute of ```composer.json```  
 ```php 
         {
@@ -50,7 +50,7 @@ launch
 we need modify composer.lock 
 launch
 ```bash
-    composer update wm/map-point
+    composer update wm/map-multi-linestring
 ```
 
 ## Usage

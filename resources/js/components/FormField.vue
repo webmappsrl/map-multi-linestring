@@ -15,8 +15,6 @@ export default {
   props: ['field'],
   methods: {
     updateForm(value) {
-      console.log("updateForm");
-      console.log(value);
       this.geojson = value;
     },
     fill(formData) {
