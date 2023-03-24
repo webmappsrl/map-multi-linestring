@@ -19,9 +19,11 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.fullscreen/Control.FullScreen.js";
 import "leaflet.fullscreen/Control.FullScreen.css";
+import "leaflet-draw/dist/leaflet.draw-src.js";
+import "leaflet-draw/dist/leaflet.draw-src.css";
 
 const DEFAULT_TILES = 'https://{s}.tile.openstreetthis.map.org/{z}/{x}/{y}.png';
-const VERSION = "0.0.5.1"
+const VERSION = "0.0.6"
 const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--multi--linestring-${VERSION}-blue">`;
 const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetthis.map.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [0, 0];
@@ -50,14 +52,26 @@ export default {
     methods: {
         initMap() {
             setTimeout(() => {
+                console.log('testmodifiche2');
                 this.center = this.field.center ?? DEFAULT_CENTER;
                 this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
                 this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
                 this.defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
                 this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
+                this.initLeafletEditMode();
                 this.buildMap();
+                this.buildLinestring(this.geojson);
+                this.buildLeafletEditMode();
                 this.buildDeleteGeometry();
             }, 300);
+        },
+        /**
+         * Initialize Leaflet edit mode by assigning Leaflet object (L)
+         * to the "L" properties of the "document" and "window" objects.
+         */
+        initLeafletEditMode() {
+            document.L = L;
+            window.L = L;
         },
         buildMap() {
             var currentGeojson = this.field.geojson != null ? JSON.parse(this.field.geojson) : null;
@@ -74,7 +88,6 @@ export default {
                 minZoom: this.minZoom,
                 id: "mapbox/streets-v11"
             }).addTo(this.map);
-            this.buildLinestring(this.geojson);
         },
         buildLinestring(geojson) {
             if (geojson != null) {
@@ -145,7 +158,7 @@ export default {
                     this.updateGeojson(res)
                     try {
                         this.buildLinestring(this.geojson.features[0].geometry);
-                    } catch(_) {
+                    } catch (_) {
                         this.$refs.file.value = null;
                         this.deleteIcon.style.visibility = "hidden";
                         window.alert('The file is corrupted');
@@ -161,6 +174,15 @@ export default {
         updateGeojson(geojson) {
             this.geojson = geojson;
             this.$emit("geojson", geojson);
+        },
+        buildLeafletEditMode() {
+            var drawControl = new L.Control.Draw({
+                draw: false,
+                edit: {
+                    featureGroup: this.linestring
+                }
+            });
+            this.map.addControl(drawControl);
         }
     },
     mounted() {
