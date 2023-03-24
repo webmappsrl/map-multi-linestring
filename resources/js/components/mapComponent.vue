@@ -176,13 +176,23 @@ export default {
             this.$emit("geojson", geojson);
         },
         buildLeafletEditMode() {
-            var drawControl = new L.Control.Draw({
+            if (!this.edit) {
+                return;
+            };
+            this.drawControl = new L.Control.Draw({
                 draw: false,
                 edit: {
-                    featureGroup: this.linestring
+                    featureGroup: this.linestring,
+                    remove: false
                 }
             });
-            this.map.addControl(drawControl);
+            this.map.addControl(this.drawControl);
+            this.map.on('draw:edited', (e) => {
+                L.DomEvent.stopPropagation(e);
+                var geojson = this.linestring.toGeoJSON();
+                this.updateGeojson(geojson);
+            });
+
         }
     },
     mounted() {
