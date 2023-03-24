@@ -42,17 +42,15 @@ export default {
     data() {
         return {
             mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}`,
-            uploadFileContainer: 'uploadFileContainer',
             deleteIcon: null,
             map: null,
             linestring: null,
-            geojson: null
+            geojson: null,
         }
     },
     methods: {
         initMap() {
             setTimeout(() => {
-                console.log('testmodifiche2');
                 this.center = this.field.center ?? DEFAULT_CENTER;
                 this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
                 this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
@@ -97,10 +95,12 @@ export default {
                 this.map.fitBounds(this.linestring.getBounds());
             }
             try {
-                if (this.edit && geojson != null) {
-                    this.deleteIcon.style.visibility = "visible";
-                } else {
-                    this.deleteIcon.style.visibility = "hidden";
+                if (this.edit) {
+                    if (geojson != null) {
+                        this.setEditMode();
+                    } else {
+                        this.setDrawMode();
+                    }
                 }
             } catch (_) { }
         },
@@ -118,12 +118,15 @@ export default {
                     L.DomEvent.on(this.deleteIcon, "click", (e) => {
                         L.DomEvent.stopPropagation(e);
                         this.updateLinestring(null);
+                        this.setDrawMode();
                         this.deleteIcon.style.visibility = "hidden";
                     });
                     if (this.edit && this.geojson != null) {
-                        this.deleteIcon.style.visibility = "visible";
+
+                        this.setEditMode();
                     } else {
                         this.deleteIcon.style.visibility = "hidden";
+                        this.setDrawMode();
                     }
                     return this.deleteIcon;
                 }
@@ -168,7 +171,6 @@ export default {
             } else {
                 this.updateGeojson(null)
                 this.$refs.file.value = null;
-
             }
         },
         updateGeojson(geojson) {
@@ -178,7 +180,47 @@ export default {
         buildLeafletEditMode() {
             if (!this.edit) {
                 return;
-            };
+            }
+            if (this.linestring == null) {
+                this.setDrawMode();
+            } else {
+                this.setEditMode();
+            }
+            this.map.on('draw:created', (e) => {
+                const layer = e.layer;
+                if (this.linestring === null) {
+                    this.linestring = L.featureGroup().addTo(this.map);
+                    this.drawControl.setDrawingOptions({
+                        edit: {
+                            featureGroup: this.linestring,
+                            remove: false
+                        }
+                    });
+                }
+                this.linestring.addLayer(layer);
+                const geojson = this.linestring.toGeoJSON();
+                this.updateGeojson(geojson);
+            });
+            this.map.on('draw:edited', (e) => {
+                L.DomEvent.stopPropagation(e);
+                var geojson = this.linestring.toGeoJSON();
+                this.updateGeojson(geojson);
+            });
+            this.map.on('draw:deletestop', (e) => {
+                L.DomEvent.stopPropagation(e);
+            });
+            this.map.on('draw:drawstop', (e) => {
+                this.setEditMode();
+                L.DomEvent.stopPropagation(e);
+            })
+        },
+        setEditMode() {
+            try {
+                this.map.removeControl(this.drawControl);
+            } catch (_) { }
+            try {
+                this.deleteIcon.style.visibility = "visible";
+            } catch (_) { }
             this.drawControl = new L.Control.Draw({
                 draw: false,
                 edit: {
@@ -187,12 +229,28 @@ export default {
                 }
             });
             this.map.addControl(this.drawControl);
-            this.map.on('draw:edited', (e) => {
-                L.DomEvent.stopPropagation(e);
-                var geojson = this.linestring.toGeoJSON();
-                this.updateGeojson(geojson);
+        },
+        setDrawMode() {
+            try {
+                this.map.removeControl(this.drawControl);
+            } catch (_) { }
+            try {
+                this.deleteIcon.style.visibility = "hidden";
+            } catch (_) { }
+            this.drawControl = new L.Control.Draw({
+                draw: {
+                    polyline: {
+                        shapeOptions: LINESTRING_OPTIONS
+                    },
+                    polygon: false,
+                    rectangle: false,
+                    circle: false,
+                    marker: false,
+                    circlemarker: false
+                },
+                edit: false
             });
-
+            this.map.addControl(this.drawControl);
         }
     },
     mounted() {
