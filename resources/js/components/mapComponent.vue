@@ -49,6 +49,7 @@ export default {
         }
     },
     methods: {
+        // Initialize the Leaflet map and other related components
         initMap() {
             setTimeout(() => {
                 this.center = this.field.center ?? DEFAULT_CENTER;
@@ -63,14 +64,12 @@ export default {
                 this.buildDeleteGeometry();
             }, 300);
         },
-        /**
-         * Initialize Leaflet edit mode by assigning Leaflet object (L)
-         * to the "L" properties of the "document" and "window" objects.
-         */
+        // Initialize Leaflet edit mode by assigning Leaflet object (L) to the "L" properties of the "document" and "window" objects.
         initLeafletEditMode() {
             document.L = L;
             window.L = L;
         },
+        // Build the Leaflet map and set its initial configuration
         buildMap() {
             var currentGeojson = this.field.geojson != null ? JSON.parse(this.field.geojson) : null;
             this.updateGeojson(currentGeojson)
@@ -87,6 +86,7 @@ export default {
                 id: "mapbox/streets-v11"
             }).addTo(this.map);
         },
+        // Create and add a linestring to the map using the provided GeoJSON
         buildLinestring(geojson) {
             if (geojson != null) {
                 this.linestring = L.geoJson(geojson, {
@@ -104,6 +104,7 @@ export default {
                 }
             } catch (_) { }
         },
+        // Create and add the "Delete Geometry" button to the map
         buildDeleteGeometry() {
             if (!this.edit) {
                 return;
@@ -139,6 +140,7 @@ export default {
                 this.deleteIcon.style.visibility = "visible";
             }
         },
+        // Update the linestring on the map based on the provided input event (e.g., a file upload)
         updateLinestring(event) {
             if (this.linestring !== null) {
                 this.map.removeLayer(this.linestring);
@@ -173,10 +175,12 @@ export default {
                 this.$refs.file.value = null;
             }
         },
+        // Update the GeoJSON property and emit the "geojson" event
         updateGeojson(geojson) {
             this.geojson = geojson;
             this.$emit("geojson", geojson);
         },
+        // Set up the Leaflet edit mode functionality
         buildLeafletEditMode() {
             if (!this.edit) {
                 return;
@@ -214,6 +218,7 @@ export default {
                 L.DomEvent.stopPropagation(e);
             })
         },
+        // Set the map to edit mode for an existing linestring
         setEditMode() {
             try {
                 this.map.removeControl(this.drawControl);
@@ -230,6 +235,7 @@ export default {
             });
             this.map.addControl(this.drawControl);
         },
+        // Set the map to draw mode for creating a new linestring
         setDrawMode() {
             try {
                 this.map.removeControl(this.drawControl);
