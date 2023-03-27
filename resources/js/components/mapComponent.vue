@@ -123,7 +123,6 @@ export default {
                         this.deleteIcon.style.visibility = "hidden";
                     });
                     if (this.edit && this.geojson != null) {
-
                         this.setEditMode();
                     } else {
                         this.deleteIcon.style.visibility = "hidden";
