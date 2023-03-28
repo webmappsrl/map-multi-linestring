@@ -19,9 +19,11 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.fullscreen/Control.FullScreen.js";
 import "leaflet.fullscreen/Control.FullScreen.css";
+import "leaflet-draw/dist/leaflet.draw-src.js";
+import "leaflet-draw/dist/leaflet.draw-src.css";
 
 const DEFAULT_TILES = 'https://{s}.tile.openstreetthis.map.org/{z}/{x}/{y}.png';
-const VERSION = "0.0.5.1"
+const VERSION = "0.0.6"
 const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--multi--linestring-${VERSION}-blue">`;
 const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetthis.map.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
 const DEFAULT_CENTER = [0, 0];
@@ -40,14 +42,14 @@ export default {
     data() {
         return {
             mapRef: `mapContainer-${Math.floor(Math.random() * 10000 + 10)}`,
-            uploadFileContainer: 'uploadFileContainer',
             deleteIcon: null,
             map: null,
             linestring: null,
-            geojson: null
+            geojson: null,
         }
     },
     methods: {
+        // Initialize the Leaflet map and other related components
         initMap() {
             setTimeout(() => {
                 this.center = this.field.center ?? DEFAULT_CENTER;
@@ -55,10 +57,19 @@ export default {
                 this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
                 this.defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
                 this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
+                this.initLeafletEditMode();
                 this.buildMap();
+                this.buildLinestring(this.geojson);
+                this.buildLeafletEditMode();
                 this.buildDeleteGeometry();
             }, 300);
         },
+        // Initialize Leaflet edit mode by assigning Leaflet object (L) to the "L" properties of the "document" and "window" objects.
+        initLeafletEditMode() {
+            document.L = L;
+            window.L = L;
+        },
+        // Build the Leaflet map and set its initial configuration
         buildMap() {
             var currentGeojson = this.field.geojson != null ? JSON.parse(this.field.geojson) : null;
             this.updateGeojson(currentGeojson)
@@ -74,8 +85,8 @@ export default {
                 minZoom: this.minZoom,
                 id: "mapbox/streets-v11"
             }).addTo(this.map);
-            this.buildLinestring(this.geojson);
         },
+        // Create and add a linestring to the map using the provided GeoJSON
         buildLinestring(geojson) {
             if (geojson != null) {
                 this.linestring = L.geoJson(geojson, {
@@ -84,13 +95,16 @@ export default {
                 this.map.fitBounds(this.linestring.getBounds());
             }
             try {
-                if (this.edit && geojson != null) {
-                    this.deleteIcon.style.visibility = "visible";
-                } else {
-                    this.deleteIcon.style.visibility = "hidden";
+                if (this.edit) {
+                    if (geojson != null) {
+                        this.setEditMode();
+                    } else {
+                        this.setDrawMode();
+                    }
                 }
             } catch (_) { }
         },
+        // Create and add the "Delete Geometry" button to the map
         buildDeleteGeometry() {
             if (!this.edit) {
                 return;
@@ -105,12 +119,14 @@ export default {
                     L.DomEvent.on(this.deleteIcon, "click", (e) => {
                         L.DomEvent.stopPropagation(e);
                         this.updateLinestring(null);
+                        this.setDrawMode();
                         this.deleteIcon.style.visibility = "hidden";
                     });
                     if (this.edit && this.geojson != null) {
-                        this.deleteIcon.style.visibility = "visible";
+                        this.setEditMode();
                     } else {
                         this.deleteIcon.style.visibility = "hidden";
+                        this.setDrawMode();
                     }
                     return this.deleteIcon;
                 }
@@ -123,6 +139,7 @@ export default {
                 this.deleteIcon.style.visibility = "visible";
             }
         },
+        // Update the linestring on the map based on the provided input event (e.g., a file upload)
         updateLinestring(event) {
             if (this.linestring !== null) {
                 this.map.removeLayer(this.linestring);
@@ -145,7 +162,7 @@ export default {
                     this.updateGeojson(res)
                     try {
                         this.buildLinestring(this.geojson.features[0].geometry);
-                    } catch(_) {
+                    } catch (_) {
                         this.$refs.file.value = null;
                         this.deleteIcon.style.visibility = "hidden";
                         window.alert('The file is corrupted');
@@ -155,12 +172,90 @@ export default {
             } else {
                 this.updateGeojson(null)
                 this.$refs.file.value = null;
-
             }
         },
+        // Update the GeoJSON property and emit the "geojson" event
         updateGeojson(geojson) {
             this.geojson = geojson;
             this.$emit("geojson", geojson);
+        },
+        // Set up the Leaflet edit mode functionality
+        buildLeafletEditMode() {
+            if (!this.edit) {
+                return;
+            }
+            if (this.linestring == null) {
+                this.setDrawMode();
+            } else {
+                this.setEditMode();
+            }
+            this.map.on('draw:created', (e) => {
+                const layer = e.layer;
+                if (this.linestring === null) {
+                    this.linestring = L.featureGroup().addTo(this.map);
+                    this.drawControl.setDrawingOptions({
+                        edit: {
+                            featureGroup: this.linestring,
+                            remove: false
+                        }
+                    });
+                }
+                this.linestring.addLayer(layer);
+                const geojson = this.linestring.toGeoJSON();
+                this.updateGeojson(geojson);
+            });
+            this.map.on('draw:edited', (e) => {
+                L.DomEvent.stopPropagation(e);
+                var geojson = this.linestring.toGeoJSON();
+                this.updateGeojson(geojson);
+            });
+            this.map.on('draw:deletestop', (e) => {
+                L.DomEvent.stopPropagation(e);
+            });
+            this.map.on('draw:drawstop', (e) => {
+                this.setEditMode();
+                L.DomEvent.stopPropagation(e);
+            })
+        },
+        // Set the map to edit mode for an existing linestring
+        setEditMode() {
+            try {
+                this.map.removeControl(this.drawControl);
+            } catch (_) { }
+            try {
+                this.deleteIcon.style.visibility = "visible";
+            } catch (_) { }
+            this.drawControl = new L.Control.Draw({
+                draw: false,
+                edit: {
+                    featureGroup: this.linestring,
+                    remove: false
+                }
+            });
+            this.map.addControl(this.drawControl);
+        },
+        // Set the map to draw mode for creating a new linestring
+        setDrawMode() {
+            try {
+                this.map.removeControl(this.drawControl);
+            } catch (_) { }
+            try {
+                this.deleteIcon.style.visibility = "hidden";
+            } catch (_) { }
+            this.drawControl = new L.Control.Draw({
+                draw: {
+                    polyline: {
+                        shapeOptions: LINESTRING_OPTIONS
+                    },
+                    polygon: false,
+                    rectangle: false,
+                    circle: false,
+                    marker: false,
+                    circlemarker: false
+                },
+                edit: false
+            });
+            this.map.addControl(this.drawControl);
         }
     },
     mounted() {
