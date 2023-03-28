@@ -21,6 +21,7 @@ import "leaflet.fullscreen/Control.FullScreen.js";
 import "leaflet.fullscreen/Control.FullScreen.css";
 import "leaflet-draw/dist/leaflet.draw-src.js";
 import "leaflet-draw/dist/leaflet.draw-src.css";
+import axios from "axios";
 
 const DEFAULT_TILES = 'https://{s}.tile.openstreetthis.map.org/{z}/{x}/{y}.png';
 const VERSION = "0.0.6"
@@ -46,6 +47,7 @@ export default {
             map: null,
             linestring: null,
             geojson: null,
+            graphhoperIcon: null,
         }
     },
     methods: {
@@ -57,18 +59,45 @@ export default {
          * The use of the setTimeout delay is likely to give time for the field object's values to be fetched or processed, to ensure consistency and accuracy in the map initialization.
          */
         initMap() {
-            setTimeout(() => {
+            setTimeout(async () => {
                 this.center = this.field.center ?? DEFAULT_CENTER;
                 this.maxZoom = this.field.maxZoom ?? DEFAULT_MAXZOOM;
                 this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
                 this.defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
                 this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
+                this.graphhooper_api = this.field.graphhooper_api ?? undefined;
                 this.initLeafletEditMode();
                 this.buildMap();
                 this.buildLinestring(this.geojson);
                 this.buildLeafletEditMode();
                 this.buildDeleteGeometry();
+                L.Control.Button = L.Control.extend({
+                    options: {
+                        position: 'topleft'
+                    },
+                    onAdd: function (map) {
+                        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                        var button = L.DomUtil.create('a', 'leaflet-control-button', container);
+                        L.DomEvent.disableClickPropagation(button);
+                        L.DomEvent.on(button, 'click', function () {
+                            console.log('click');
+                        });
+
+                        container.title = "Title";
+
+                        return container;
+                    },
+                    onRemove: function (map) { },
+                });
+                var control = new L.Control.Button()
+                control.addTo(this.map);
+
             }, 300);
+        },
+        async getRouting(points) {
+            const res = await axios.post(this.graphhooper_api, { points, profile: "hike", debug: false, locale: "en", points_encoded: false, instructions: false, elevation: true, optimize: "false" });
+            console.log(res);
+            return res.data.paths[0].points.coordinates;
         },
         /**
          * The function first assigns the global JavaScript variable L to the document.L property. 
@@ -118,6 +147,10 @@ export default {
          */
         buildLinestring(geojson) {
             if (geojson != null) {
+                if (this.linestring !== null) {
+                    this.map.removeLayer(this.linestring);
+                    this.linestring = null;
+                }
                 this.linestring = L.geoJson(geojson, {
                     style: LINESTRING_OPTIONS
                 }).addTo(this.map);
@@ -280,9 +313,15 @@ export default {
             this.map.on('draw:deletestop', (e) => {
                 L.DomEvent.stopPropagation(e);
             });
-            this.map.on('draw:drawstop', (e) => {
+            this.map.on('draw:drawstop', async (e) => {
+                var geojson = this.linestring.toGeoJSON();
+                geojson.features[0].geometry.coordinates = await this.getRouting(geojson.features[0].geometry.coordinates);
+                this.buildLinestring(geojson)
                 this.setEditMode();
                 L.DomEvent.stopPropagation(e);
+            })
+            this.map.on('draw:drawvertex', (e) => {
+                console.log('draw:drawvertex', e);
             })
         },
         /**
