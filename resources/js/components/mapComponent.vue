@@ -249,19 +249,15 @@ export default {
             this.$emit("geojson", geojson);
         },
         /**
-         * This code defines a method called "buildLeafletEditMode" that belongs to an object that has certain properties and methods, but they are not specified in this code block. 
-         * When this method is called, it first checks if the "edit" property of the object is set to a truthy value. If it is not, the method immediately returns, doing nothing else.
-         * If "edit" is true, the method checks whether the "linestring" property of the object is null. If it is, "setDrawMode" method is called, which is not specified in this code block. 
-         * Otherwise, the "setEditMode" method is called, also not specified in this block.
-         * The code then adds four event listeners to the Leaflet map object. The first listens for the 'draw:created' event, which occurs when a user finishes creating a new drawn feature on the map. 
-         * When this happens, the method creates a new feature (a linestring) using the Leaflet "featureGroup()" method, adds the drawn layer to it, converts the linestring feature to GeoJSON format, 
-         * and updates the object's GeoJSON property using a separate method called "updateGeojson" that is not specified in this code block.
-         * The second event listener listens for 'draw:edited', which occurs when an existing feature is edited. 
-         * When this occurs, the code converts the linestring feature to GeoJSON format again and triggers the "updateGeojson" method to update the object's GeoJSON property.
-         * The third event listener listens for the event named 'draw:deletestop' and stops its propagation.
-         * The fourth and final event listener listens for 'draw:drawstop' event and sets the edit mode to true before stopping its propagation. 
-         * In summary, this code block defines a method that sets up Leaflet draw mode and event listeners to update the object's GeoJSON property when new features are added or edited on the map, 
-         * all within an edit mode controlled by a truthy value of the "edit" property.
+         * This is a method buildLeafletEditMode() that initializes Leaflet edit mode on a map. 
+         * It first checks if this.edit is true, then either enters "draw mode" or "edit mode" depending on whether the linestring property exists.          
+         * It listens for 'draw:created' events on the map, which are emitted when a user adds a new feature such as a point or line. 
+         * It extracts the layer from the event, adds it to the linestring feature group, converts the feature group to GeoJSON, and passes the GeoJSON to updateGeojson().
+         * It also listens for 'draw:edited' events on the map, which are emitted when a user modifies an existing feature. 
+         * It converts the linestring to GeoJSON and passes it to updateGeojson().
+         * It also listens for 'draw:deletestop' events on the map, which are emitted when a user finishes deleting a feature. It does not do anything with this event.
+         * It also listens for 'draw:drawstop' events on the map, which are emitted when a user stops drawing a feature. 
+         * It converts the linestring to GeoJSON, updates the GraphHopper visibility, builds the linestring, and enters edit mode.
          */
         buildLeafletEditMode() {
             if (!this.edit) {
@@ -360,6 +356,16 @@ export default {
             });
             this.map.addControl(this.drawControl);
         },
+        /**
+         * This code defines a function buildGraphHopperControl()that creates a custom Leaflet control for routing using GraphHopper API. 
+         * It first checks if the edit option is enabled. If it's not enabled, the function returns an empty result. 
+         * If the editoption is enabled, it creates a new Leaflet control called L.Control.GraphHoperusing the L.Control.extend()method. 
+         * This control will have an onAdd method that creates a custom button with the class graph-hopper-button and an image of the GraphHopper logo. 
+         * When the button is clicked, it asynchronously calls a getRouting() method to calculate the route using the current linestring as an input in GeoJSON format. 
+         * It then builds a new linestring and updates the GeoJSON data accordingly. 
+         * Finally, it checks if edit is true and geojson is not null. If it is not, the button is hidden.
+         * The function then creates a new instance of the L.Control.GraphHoper and adds it to the top left position of the map.
+         */
         buildGraphHopperControl() {
             if (!this.edit) {
                 return;
@@ -389,6 +395,11 @@ export default {
             }
             L.control.GraphHoper({ position: 'topleft' }).addTo(this.map);
         },
+        /**
+         * This code defines a function called "updateGraphHopperVisibility()" which updates the visibility of a GraphHopper icon on a map. 
+         * If a linestring exists (meaning there is an element on the map), the graphhopperIcon is made visible. 
+         * If there is no linestring, the graphhopperIcon is set to be hidden. Any errors resulting from styling the graphhopperIcon are caught and ignored.
+         */
         updateGraphHopperVisibility() {
             if (this.linestring != null) {
                 try {
