@@ -24,9 +24,10 @@ import "leaflet-draw/dist/leaflet.draw-src.css";
 import axios from "axios";
 
 const DEFAULT_TILES = 'https://{s}.tile.openstreetthis.map.org/{z}/{x}/{y}.png';
-const VERSION = "0.0.6"
+const VERSION = "0.0.7"
 const VERSION_IMAGE = `<img class="version-image" src="https://img.shields.io/badge/wm--map--multi--linestring-${VERSION}-blue">`;
 const DEFAULT_ATTRIBUTION = '<a href="https://www.openstreetthis.map.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>';
+const DEFAULT_GRAPHHOPPER_PROFILE = 'foot';
 const DEFAULT_CENTER = [0, 0];
 const DEFAULT_MINZOOM = 7;
 const DEFAULT_MAXZOOM = 17;
@@ -66,37 +67,17 @@ export default {
                 this.defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
                 this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
                 this.graphhooper_api = this.field.graphhooper_api ?? undefined;
+                this.graphhoper_profile = this.field.graphhoper_profile ?? DEFAULT_GRAPHHOPPER_PROFILE;
                 this.initLeafletEditMode();
                 this.buildMap();
                 this.buildLinestring(this.geojson);
-                this.buildLeafletEditMode();
+                this.buildGraphHopperControl();
                 this.buildDeleteGeometry();
-                L.Control.Button = L.Control.extend({
-                    options: {
-                        position: 'topleft'
-                    },
-                    onAdd: function (map) {
-                        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                        var button = L.DomUtil.create('a', 'leaflet-control-button', container);
-                        L.DomEvent.disableClickPropagation(button);
-                        L.DomEvent.on(button, 'click', function () {
-                            console.log('click');
-                        });
-
-                        container.title = "Title";
-
-                        return container;
-                    },
-                    onRemove: function (map) { },
-                });
-                var control = new L.Control.Button()
-                control.addTo(this.map);
-
+                this.buildLeafletEditMode();
             }, 300);
         },
         async getRouting(points) {
             const res = await axios.post(this.graphhooper_api, { points, profile: "hike", debug: false, locale: "en", points_encoded: false, instructions: false, elevation: true, optimize: "false" });
-            console.log(res);
             return res.data.paths[0].points.coordinates;
         },
         /**
@@ -192,6 +173,7 @@ export default {
                         this.updateLinestring(null);
                         this.setDrawMode();
                         this.deleteIcon.style.visibility = "hidden";
+                        this.updateGraphHopperVisibility();
                     });
                     if (this.edit && this.geojson != null) {
                         this.setEditMode();
@@ -313,15 +295,12 @@ export default {
             this.map.on('draw:deletestop', (e) => {
                 L.DomEvent.stopPropagation(e);
             });
-            this.map.on('draw:drawstop', async (e) => {
+            this.map.on('draw:drawstop', (e) => {
+                L.DomEvent.stopPropagation(e);
                 var geojson = this.linestring.toGeoJSON();
-                geojson.features[0].geometry.coordinates = await this.getRouting(geojson.features[0].geometry.coordinates);
+                this.updateGraphHopperVisibility();
                 this.buildLinestring(geojson)
                 this.setEditMode();
-                L.DomEvent.stopPropagation(e);
-            })
-            this.map.on('draw:drawvertex', (e) => {
-                console.log('draw:drawvertex', e);
             })
         },
         /**
@@ -368,7 +347,8 @@ export default {
             this.drawControl = new L.Control.Draw({
                 draw: {
                     polyline: {
-                        shapeOptions: LINESTRING_OPTIONS
+                        shapeOptions: LINESTRING_OPTIONS,
+                        allowIntersection: false
                     },
                     polygon: false,
                     rectangle: false,
@@ -379,6 +359,46 @@ export default {
                 edit: false
             });
             this.map.addControl(this.drawControl);
+        },
+        buildGraphHopperControl() {
+            if (!this.edit) {
+                return;
+            }
+            L.Control.GraphHoper = L.Control.extend({
+                onAdd: () => {
+                    this.graphhoperIcon = L.DomUtil.create('div')
+                    L.DomUtil.addClass(this.graphhoperIcon, 'graph-hopper-button');
+                    var img = L.DomUtil.create('img');
+                    img.src = 'https://cdn-icons-png.flaticon.com/512/9265/9265993.png';
+                    this.graphhoperIcon.appendChild(img);
+                    L.DomEvent.on(this.graphhoperIcon, "click", async (e) => {
+                        var geojson = this.linestring.toGeoJSON();
+                        geojson.features[0].geometry.coordinates = await this.getRouting(geojson.features[0].geometry.coordinates);
+                        this.buildLinestring(geojson);
+                        this.updateGeojson(geojson);
+                    });
+                    if (this.edit && this.geojson != null) {
+                    } else {
+                        this.graphhoperIcon.style.visibility = "hidden";
+                    }
+                    return this.graphhoperIcon;
+                }
+            });
+            L.control.GraphHoper = function (opts) {
+                return new L.Control.GraphHoper(opts);
+            }
+            L.control.GraphHoper({ position: 'topleft' }).addTo(this.map);
+        },
+        updateGraphHopperVisibility() {
+            if (this.linestring != null) {
+                try {
+                    this.graphhoperIcon.style.visibility = "visible";
+                } catch (_) { }
+            } else {
+                try {
+                    this.graphhoperIcon.style.visibility = "hidden";
+                } catch (_) { }
+            }
         }
     },
     mounted() {
