@@ -86,8 +86,8 @@ To use the Map Multi Linestring feature, include the MapMultiLinestring class an
                 'minZoom' => 5,
                 'maxZoom' => 17,
                 'defaultZoom' => 10,
-                'graphhooper_api' => 'https://graphhopper.webmapp.it/route',
-                'graphhoper_profile' => 'hike'
+                'graphhopper_api' => 'https://graphhopper.webmapp.it/route',
+                'graphhopper_profile' => 'hike'
             ]),
         ];
     }

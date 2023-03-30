@@ -66,8 +66,8 @@ export default {
                 this.minZoom = this.field.minZoom ?? DEFAULT_MINZOOM;
                 this.defaultZoom = this.field.defaultZoom ?? DEFAULT_DEFAULTZOOM;
                 this.attribution = this.field.attribution ?? DEFAULT_ATTRIBUTION;
-                this.graphhooper_api = this.field.graphhooper_api ?? undefined;
-                this.graphhoper_profile = this.field.graphhoper_profile ?? DEFAULT_GRAPHHOPPER_PROFILE;
+                this.graphhopper_api = this.field.graphhopper_api ?? undefined;
+                this.graphhopper_profile = this.field.graphhopper_profile ?? DEFAULT_GRAPHHOPPER_PROFILE;
                 this.initLeafletEditMode();
                 this.buildMap();
                 this.buildLinestring(this.geojson);
@@ -77,7 +77,7 @@ export default {
             }, 300);
         },
         async getRouting(points) {
-            const res = await axios.post(this.graphhooper_api, { points, profile: "hike", debug: false, locale: "en", points_encoded: false, instructions: false, elevation: true, optimize: "false" });
+            const res = await axios.post(this.graphhopper_api, { points, profile: this.graphhopper_profile, debug: false, locale: "en", points_encoded: false, instructions: false, elevation: true, optimize: "false" });
             return res.data.paths[0].points.coordinates;
         },
         /**
@@ -379,7 +379,7 @@ export default {
          * The function then creates a new instance of the L.Control.GraphHoper and adds it to the top left position of the map.
          */
         buildGraphHopperControl() {
-            if (!this.edit || this.graphhooper_api == null) {
+            if (!this.edit || this.graphhopper_api == null) {
                 return;
             }
             // Extend the Leaflet control to create a custom GraphHopper control
