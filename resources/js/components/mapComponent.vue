@@ -72,8 +72,8 @@ export default {
                 this.buildMap();
                 this.buildLinestring(this.geojson);
                 this.buildGraphHopperControl();
-                this.buildDeleteGeometry();
                 this.buildLeafletEditMode();
+                this.buildDeleteGeometry();
             }, 300);
         },
         async getRouting(points) {
@@ -161,6 +161,7 @@ export default {
             if (!this.edit) {
                 return;
             }
+            // Extend the Leaflet Control class to create a custom deleteGeometry control
             L.Control.deleteGeometry = L.Control.extend({
                 onAdd: () => {
                     this.deleteIcon = L.DomUtil.create('div')
@@ -168,6 +169,7 @@ export default {
                     var img = L.DomUtil.create('img');
                     img.src = 'https://cdn-icons-png.flaticon.com/512/2891/2891491.png';
                     this.deleteIcon.appendChild(img);
+                    // Add a click event listener to the delete button
                     L.DomEvent.on(this.deleteIcon, "click", (e) => {
                         L.DomEvent.stopPropagation(e);
                         this.updateLinestring(null);
@@ -207,15 +209,19 @@ export default {
                 this.map.removeLayer(this.linestring);
                 this.linestring = null;
             }
+            // If an event was provided create a new FileReader instance to read the contents of the uploaded file
             if (event) {
                 const reader = new FileReader();
                 let fileName = event.target.files[0].name || '';
                 reader.onload = (event) => {
                     let res = event.target.result;
+                    // Check the file type and convert it to GeoJSON if necessary
                     if (fileName.indexOf('gpx') > -1) {
+                        // If the file is a GPX file, parse the XML and convert it to GeoJSON
                         const parser = new DOMParser().parseFromString(res, 'text/xml');
                         res = t.gpx(parser);
                     } else if (fileName.indexOf('kml') > -1) {
+                        // If the file is a KML file, parse the XML and convert it to GeoJSON
                         const parser = new DOMParser().parseFromString(res, 'text/xml');
                         res = t.kml(parser);
                     } else {
@@ -263,13 +269,16 @@ export default {
             if (!this.edit) {
                 return;
             }
+            // If the current linestring is null, set the draw mode, otherwise, set the edit mode
             if (this.linestring == null) {
                 this.setDrawMode();
             } else {
                 this.setEditMode();
             }
+            // Add an event listener for when a new shape is created on the map
             this.map.on('draw:created', (e) => {
                 const layer = e.layer;
+                // If the current linestring is null, create a new feature group and set its editing options
                 if (this.linestring === null) {
                     this.linestring = L.featureGroup().addTo(this.map);
                     this.drawControl.setDrawingOptions({
@@ -283,21 +292,24 @@ export default {
                 const geojson = this.linestring.toGeoJSON();
                 this.updateGeojson(geojson);
             });
+            // Add an event listener for when a track is edited on the map
             this.map.on('draw:edited', (e) => {
                 L.DomEvent.stopPropagation(e);
                 var geojson = this.linestring.toGeoJSON();
                 this.updateGeojson(geojson);
             });
+            // Add an event listener for when the delete mode is stopped
             this.map.on('draw:deletestop', (e) => {
                 L.DomEvent.stopPropagation(e);
             });
+            // Add an event listener for when the draw mode is stopped
             this.map.on('draw:drawstop', (e) => {
                 L.DomEvent.stopPropagation(e);
                 var geojson = this.linestring.toGeoJSON();
                 this.updateGraphHopperVisibility();
                 this.buildLinestring(geojson)
                 this.setEditMode();
-            })
+            });
         },
         /**
          * The code defines a function named setEditMode(). 
@@ -344,7 +356,7 @@ export default {
                 draw: {
                     polyline: {
                         shapeOptions: LINESTRING_OPTIONS,
-                        allowIntersection: false
+                        allowIntersection: false,
                     },
                     polygon: false,
                     rectangle: false,
@@ -370,6 +382,7 @@ export default {
             if (!this.edit) {
                 return;
             }
+            // Extend the Leaflet control to create a custom GraphHopper control
             L.Control.GraphHoper = L.Control.extend({
                 onAdd: () => {
                     this.graphhoperIcon = L.DomUtil.create('div')
@@ -377,12 +390,15 @@ export default {
                     var img = L.DomUtil.create('img');
                     img.src = 'https://cdn-icons-png.flaticon.com/512/9265/9265993.png';
                     this.graphhoperIcon.appendChild(img);
+                    // Add a click event listener to the GraphHopper button
                     L.DomEvent.on(this.graphhoperIcon, "click", async (e) => {
                         var geojson = this.linestring.toGeoJSON();
+                        // Get the GraphHopper routing for the current linestring coordinates
                         geojson.features[0].geometry.coordinates = await this.getRouting(geojson.features[0].geometry.coordinates);
                         this.buildLinestring(geojson);
                         this.updateGeojson(geojson);
                     });
+                    // Hide the GraphHopper button if not in edit mode or if there is no GeoJSON data
                     if (this.edit && this.geojson != null) {
                     } else {
                         this.graphhoperIcon.style.visibility = "hidden";

@@ -96,15 +96,68 @@ To use the Map Multi Linestring feature, include the MapMultiLinestring class an
 
 As of v1.4.0 it's possible to use a `Tab` class instead of an array to represent your tabs.
 
-| Property         | Type      | Default                                                                   | Description                                                                                           |
-|------------------|-----------|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
-| center           | `array`   | `[0,0]`                                                                   | The coordinates used to center the view of an empty map.                                              |
-| attribution      | `string`  | `<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>` | The HTML content displayed as map attribution.                                                        |
-| tiles            | `string`  | `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`                      | The tile URL used for the map.                                                                        |
-| minZoom          | `integer` | `1`                                                                       | The minimum zoom level allowed on the map.                                                             |
-| maxZoom          | `integer` | `19`                                                                      | The maximum zoom level allowed on the map.                                                             |
-| defaultZoom      | `integer` | `10`                                                                      | The initial zoom level when the map is first displayed.                                                |
-| graphhooper_api  | `string`  | `'https://graphhopper.webmapp.it/route'`                                   | The URL of the GraphHopper API used for routing requests.                                              |
-| graphhoper_profile | `string` | `'foot'` | The routing profile used by GraphHopper for calculating the route. Default is optimized for walking `'foot'`. Other available profiles include `'bike'` and `'hike'`. |
+<div style="overflow-x:auto;">
+  <table style="width: 100%">
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Type</th>
+        <th style="width: 10%;">Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>center</td>
+        <td>array</td>
+        <td>[0,0]</td>
+        <td>The coordinates used to center the view of an empty map.</td>
+      </tr>
+      <tr>
+        <td>attribution</td>
+        <td>string</td>
+        <td>'&lt;a href="https://www.openstreetmap.org/"&gt;OpenStreetMap&lt;/a&gt; contributors, &lt;a href="https://creativecommons.org/licenses/by-sa/2.0/"&gt;CC-BY-SA&lt;/a&gt;, Imagery (c) &lt;a href="https://www.mapbox.com/"&gt;Mapbox&lt;/a&gt;'</td>
+        <td>The HTML content displayed as map attribution.</td>
+      </tr>
+      <tr>
+        <td>tiles</td>
+        <td>string</td>
+        <td>'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</td>
+        <td>The tile URL used for the map.</td>
+      </tr>
+      <tr>
+        <td>minZoom</td>
+        <td>integer</td>
+        <td>1</td>
+        <td>The minimum zoom level allowed on the map.</td>
+      </tr>
+      <tr>
+        <td>maxZoom</td>
+        <td>integer</td>
+        <td>19</td>
+        <td>The maximum zoom level allowed on the map.</td>
+      </tr>
+      <tr>
+        <td>defaultZoom</td>
+        <td>integer</td>
+        <td>10</td>
+        <td>The initial zoom level when the map is first displayed.</td>
+      </tr>
+      <tr>
+        <td>graphhoopper_api</td>
+        <td>string</td>
+        <td>undefined</td>
+        <td>The URL of the GraphHopper API used for routing requests.</td>
+      </tr>
+      <tr>
+        <td>graphhopper_profile</td>
+        <td>string</td>
+        <td>'foot'</td>
+        <td>The routing profile used by GraphHopper for calculating the route. Default is optimized for walking. All available profiles: 'bike', 'foot', and 'hike'.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 
 
