@@ -379,7 +379,7 @@ export default {
          * The function then creates a new instance of the L.Control.GraphHoper and adds it to the top left position of the map.
          */
         buildGraphHopperControl() {
-            if (!this.edit) {
+            if (!this.edit || this.graphhooper_api == null) {
                 return;
             }
             // Extend the Leaflet control to create a custom GraphHopper control
