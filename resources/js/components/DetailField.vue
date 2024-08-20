@@ -1,7 +1,8 @@
 <template>
   <PanelItem :index="index" :field="field">
     <template #value>
-      <wm-map-multi-linestring :field="field" :edit=false></wm-map-multi-linestring>
+       <p v-if="!field.geojson">Geometria non disponibile</p>
+      <wm-map-multi-linestring :field="field" :edit=false v-else></wm-map-multi-linestring>
     </template>
   </PanelItem>
 </template>
