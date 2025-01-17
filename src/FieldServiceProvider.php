@@ -1,6 +1,6 @@
 <?php
 
-namespace Wm\MapMultiLinestring;
+namespace Wm\Osm2caiMapMultiLinestring;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Events\ServingNova;
@@ -16,8 +16,8 @@ class FieldServiceProvider extends ServiceProvider
     public function boot()
     {
         Nova::serving(function (ServingNova $event) {
-            Nova::script('map-multi-linestring', __DIR__.'/../dist/js/field.js');
-            Nova::style('map-multi-linestring', __DIR__.'/../dist/css/field.css');
+            Nova::script('osm2cai-map-multi-linestring', __DIR__.'/../dist/js/field.js');
+            Nova::style('osm2cai-map-multi-linestring', __DIR__.'/../dist/css/field.css');
         });
     }
 
