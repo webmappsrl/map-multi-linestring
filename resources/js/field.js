@@ -4,8 +4,8 @@ import FormField from './components/FormField'
 import MapComponent from './components/MapComponent'
 
 Nova.booting((app, store) => {
-  app.component('wm-map-multi-linestring', MapComponent)
-  app.component('index-map-multi-linestring', IndexField)
-  app.component('detail-map-multi-linestring', DetailField)
-  app.component('form-map-multi-linestring', FormField)
+  app.component('osm2cai-map-multi-linestring', MapComponent)
+  app.component('index-osm2cai-map-multi-linestring', IndexField)
+  app.component('detail-osm2cai-map-multi-linestring', DetailField)
+  app.component('form-osm2cai-map-multi-linestring', FormField)
 })

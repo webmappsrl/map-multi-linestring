@@ -30,6 +30,9 @@
 .fullscreen-icon {
     background-image: url(https://unpkg.com/leaflet.fullscreen@2.4.0/icon-fullscreen.svg)!important;
 }
+.leaflet-control-button {
+    background-image: url('/assets/images/Maps-Center-Direction-icon.png') !important;
+}
 .flex-container {
     margin: 10px 10px 10px 0px;
     width: 600px;
@@ -62,4 +65,4 @@
 .leaflet-draw-actions-top li a{
             color: white;
 }
-  
+
