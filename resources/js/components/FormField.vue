@@ -1,42 +1,40 @@
 <template>
-  <default-field :field="field">
-    <template #field>
-      <wm-map-multi-linestring  :field="field" :attribution="attribution" @geojson="updateForm" :edit=true>
-      </wm-map-multi-linestring>
-    </template>
-  </default-field>
-</template>
+    <default-field :field="field" :errors="errors" :show-help-text="showHelpText">
+      <template slot="field">
+        <input
+          :id="field.name"
+          type="text"
+          class="w-full form-control form-input form-input-bordered"
+          :class="errorClasses"
+          :placeholder="field.name"
+          v-model="value"
+        />
+      </template>
+    </default-field>
+  </template>
 
-<script>
-import { FormField, HandlesValidationErrors } from 'laravel-nova';
+  <script>
+  import { FormField, HandlesValidationErrors } from 'laravel-nova'
 
-export default {
-  mixins: [FormField, HandlesValidationErrors],
-  props: ['field'],
-  methods: {
-    updateForm(value) {
-      this.geojson = value;
+  export default {
+    mixins: [FormField, HandlesValidationErrors],
+
+    props: ['resourceName', 'resourceId', 'field'],
+
+    methods: {
+      /*
+       * Set the initial, internal value for the field.
+       */
+      setInitialValue() {
+        this.value = this.field.value || ''
+      },
+
+      /**
+       * Fill the given FormData object with the field's internal value.
+       */
+      fill(formData) {
+        formData.append(this.field.attribute, this.value || '')
+      },
     },
-    fill(formData) {
-      let geometry = null;
-      try {
-        geometry = this.geojson && this.geojson.features && this.geojson.features[0] ? this.geojson.features[0].geometry : this.geojson
-      } catch (error) {
-        console.error(error);
-      }
-      if (geometry != null) {
-        if (geometry.type === 'LineString') {
-          geometry.type = 'MultiLineString'
-          geometry.coordinates = [geometry.coordinates]
-        }
-        formData.append(this.field.attribute, JSON.stringify(geometry))
-      } else {
-        formData.append(this.field.attribute, null)
-      }
-    },
-  },
-  data() {
-    return { geojson: null }
   }
-};
-</script>
+  </script>

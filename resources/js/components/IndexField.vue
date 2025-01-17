@@ -1,8 +1,9 @@
 <template>
-  <wm-map-multi-linestring :edit=false class="index-view" :field="field"></wm-map-multi-linestring>
+    <span>{{ field.value }}</span>
 </template>
+
 <script>
 export default {
-  props: ['field'],
+    props: ['resourceName', 'field'],
 }
 </script>
