@@ -1,5 +1,5 @@
 {
-    "name": "wm/map-multi-linestring",
+    "name": "wm/osm2cai-map-multi-linestring",
     "description": "A Laravel Nova field.",
     "keywords": [
         "laravel",
@@ -11,13 +11,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Wm\\MapMultiLinestring\\": "src/"
+            "Wm\\Osm2caiMapMultiLinestring\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Wm\\MapMultiLinestring\\FieldServiceProvider"
+                "Wm\\Osm2caiMapMultiLinestring\\FieldServiceProvider"
             ]
         }
     },
