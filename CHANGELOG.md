@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/webmappsrl/map-multi-linestring/compare/wm/map-multi-linestring-v1.0.0...wm/map-multi-linestring-v1.0.1) (2025-03-04)
+
+
+### Bug Fixes
+
+* Substituted FillAttributeFromRequest with FillModelWithData to adhere to best practices oc:5018 ([#8](https://github.com/webmappsrl/map-multi-linestring/issues/8)) ([b999509](https://github.com/webmappsrl/map-multi-linestring/commit/b9995096d77901d11bef58cc97b088a86eb98bb7))
+
 ## 1.0.0 (2025-02-20)
 
 
