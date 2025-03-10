@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/webmappsrl/map-multi-linestring/compare/wm/map-multi-linestring-v1.0.1...wm/map-multi-linestring-v1.0.2) (2025-03-10)
+
+
+### Bug Fixes
+
+* Changed FillModelWithDataDeclaration to adapt to Nova5 oc:5069 ([#11](https://github.com/webmappsrl/map-multi-linestring/issues/11)) ([ca5b36c](https://github.com/webmappsrl/map-multi-linestring/commit/ca5b36ced5040a1247ff86baaa14371aebc5d07f))
+
 ## [1.0.1](https://github.com/webmappsrl/map-multi-linestring/compare/wm/map-multi-linestring-v1.0.0...wm/map-multi-linestring-v1.0.1) (2025-03-04)
 
 
