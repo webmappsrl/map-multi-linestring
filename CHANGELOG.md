@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/webmappsrl/map-multi-linestring/compare/v1.0.2...v1.0.3) (2025-03-31)
+
+
+### Miscellaneous
+
+* update release-please-config.json to include 'include-component-in-tag' option ([19a513d](https://github.com/webmappsrl/map-multi-linestring/commit/19a513dd0900798b019067fa0761cf22241150a2))
+
 ## [1.0.2](https://github.com/webmappsrl/map-multi-linestring/compare/wm/map-multi-linestring-v1.0.1...wm/map-multi-linestring-v1.0.2) (2025-03-10)
 
 
