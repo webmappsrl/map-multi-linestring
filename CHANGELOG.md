@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/webmappsrl/map-multi-linestring/compare/v1.0.3...v1.0.4) (2025-05-21)
+
+
+### Bug Fixes
+
+* handle null oldAttribute in MapMultiLinestring to prevent errors when comparing geometries ([c6633ca](https://github.com/webmappsrl/map-multi-linestring/commit/c6633ca06d1ee9abaaa9518badfdb357a464ca15))
+
 ## [1.0.3](https://github.com/webmappsrl/map-multi-linestring/compare/v1.0.2...v1.0.3) (2025-03-31)
 
 
